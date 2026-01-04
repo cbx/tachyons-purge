@@ -61,3 +61,12 @@
     (extract-keyword-classes content)
     (extract-class-attrs content)
     (extract-string-literals content)))
+
+(defn scan-directory
+  "Scan all matching files in directory and extract classes"
+  [dir extensions]
+  (let [files (find-files dir extensions)]
+    (->> files
+         (map slurp)
+         (map extract-classes)
+         (reduce clojure.set/union #{}))))

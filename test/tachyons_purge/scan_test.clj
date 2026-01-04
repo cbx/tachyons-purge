@@ -51,3 +51,18 @@
       ;; it contains '?' which doesn't match the CSS class pattern
       (is (= (scan/extract-classes content)
              #{"pa3" "flex" "items-center" "bg-blue" "bg-green"})))))
+
+(deftest scan-directory-test
+  (testing "scans all files and extracts classes"
+    (let [tmp (fs/create-temp-dir)
+          clj-file (fs/file tmp "foo.clj")
+          html-file (fs/file tmp "bar.html")]
+      (spit clj-file "[:div.pa3.flex {:class \"ma2\"}]")
+      (spit html-file "<div class=\"bg-blue white\">")
+      (let [classes (scan/scan-directory (str tmp) #{"clj" "html"})]
+        (is (contains? classes "pa3"))
+        (is (contains? classes "flex"))
+        (is (contains? classes "ma2"))
+        (is (contains? classes "bg-blue"))
+        (is (contains? classes "white")))
+      (fs/delete-tree tmp))))
