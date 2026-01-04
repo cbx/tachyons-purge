@@ -1,6 +1,10 @@
 (ns tachyons-purge.core
-  (:require [clojure.java.io :as io]
-            [clojure.tools.cli :refer [parse-opts]]))
+  (:require [clojure.tools.cli :refer [parse-opts]]
+            [clojure.java.io :as io]
+            [clojure.string :as str]
+            [tachyons-purge.scan :as scan]
+            [tachyons-purge.css :as css]
+            [tachyons-purge.emit :as emit]))
 
 (def cli-options
   [["-c" "--css PATH" "Path to tachyons.css (default: bundled)"]
@@ -18,10 +22,46 @@
     (slurp css-path)
     (slurp (io/resource "tachyons.min.css"))))
 
+(defn parse-extensions
+  "Parse comma-separated extensions into set"
+  [s]
+  (set (str/split s #",")))
+
+(defn purge
+  "Main purge logic"
+  [{:keys [dir css-path extensions minify? verbose? out-path]}]
+  (let [exts (parse-extensions extensions)
+        files (scan/find-files dir exts)
+        classes (scan/scan-directory dir exts)
+        original-css (get-css-content css-path)
+        filtered-css (css/filter-css original-css classes)
+        final-css (if minify? (emit/minify filtered-css) filtered-css)
+        stats (emit/calc-stats (count original-css) (count final-css) (count classes))]
+    (when verbose?
+      (emit/print-stats stats (count files)))
+    (if out-path
+      (spit out-path final-css)
+      (println final-css))))
+
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (cond
-      (:help options) (println "tachyons-purge [options] <directory>\n\nOptions:\n" summary)
-      errors (do (doseq [e errors] (println e)) (System/exit 1))
-      (empty? arguments) (do (println "Error: directory required") (System/exit 1))
-      :else (println "TODO: purge" (first arguments) options))))
+      (:help options)
+      (println "tachyons-purge [options] <directory>\n\nOptions:\n" summary)
+
+      errors
+      (do (doseq [e errors] (println e)) (System/exit 1))
+
+      (empty? arguments)
+      (do (println "Error: directory required") (System/exit 1))
+
+      :else
+      (let [dir (first arguments)]
+        (if-not (.isDirectory (io/file dir))
+          (do (println "Error: Directory not found:" dir) (System/exit 1))
+          (purge {:dir dir
+                  :css-path (:css options)
+                  :extensions (:extensions options)
+                  :minify? (:minify options)
+                  :verbose? (:verbose options)
+                  :out-path (:out options)}))))))
