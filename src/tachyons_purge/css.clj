@@ -1,16 +1,29 @@
 (ns tachyons-purge.css
   (:require [clojure.string :as str]))
 
+(defn- extract-classes-from-selector
+  "Extract all class names from a CSS selector (handles comma-separated)"
+  [selector]
+  (let [pattern #"\.([a-zA-Z0-9_-]+)"
+        matches (re-seq pattern selector)]
+    (mapv second matches)))
+
 (defn- parse-rules-with-media
-  "Parse CSS rules from content and associate with media query (or nil)"
+  "Parse CSS rules from content and associate with media query (or nil).
+   Handles combined selectors like .center,.mr-auto{...} by creating
+   a block entry for each class in the selector."
   [content media]
-  (let [pattern #"\.([a-zA-Z0-9_-]+)\s*\{[^}]+\}"
+  (let [;; Match full rule including combined selectors
+        pattern #"([.a-zA-Z0-9_,\s-]+)\{([^}]+)\}"
         matches (re-seq pattern content)]
-    (mapv (fn [[rule class-name]]
-            {:class class-name
-             :rule rule
-             :media media})
-          matches)))
+    (->> matches
+         (mapcat (fn [[full-rule selector body]]
+                   (let [classes (extract-classes-from-selector selector)]
+                     (for [class-name classes]
+                       {:class class-name
+                        :rule (str "." class-name "{" body "}")
+                        :media media}))))
+         vec)))
 
 (defn- extract-media-blocks
   "Extract @media blocks from CSS, returning pairs of [media-query content]"

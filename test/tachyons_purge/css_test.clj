@@ -37,3 +37,20 @@
       (is (str/includes? result ".pa3-ns"))
       (is (not (str/includes? result ".pa0")))
       (is (not (str/includes? result ".ma3-ns"))))))
+
+(deftest filter-css-combined-selectors-test
+  (testing "handles combined selectors like .center,.mr-auto{...}"
+    (let [css ".center{margin-left:auto}.center,.mr-auto{margin-right:auto}"
+          used #{"center"}
+          result (css/filter-css css used)]
+      ;; Should include both rules for .center
+      (is (str/includes? result "margin-left:auto"))
+      (is (str/includes? result "margin-right:auto"))))
+  (testing "only includes classes that are used"
+    (let [css ".center,.mr-auto{margin-right:auto}"
+          used #{"mr-auto"}
+          result (css/filter-css css used)]
+      (is (str/includes? result ".mr-auto"))
+      (is (str/includes? result "margin-right:auto"))
+      ;; Should NOT include .center since it wasn't used
+      (is (not (str/includes? result ".center"))))))
