@@ -35,3 +35,10 @@
   (testing "extracts classes from HTML class attributes"
     (is (= (scan/extract-class-attrs "<div class=\"bg-blue white\">")
            #{"bg-blue" "white"}))))
+
+(deftest extract-string-literals-test
+  (testing "extracts potential classes from string literals"
+    (is (= (scan/extract-string-literals "(str \"pa3 \" (when x \"bg-blue\"))")
+           #{"pa3" "bg-blue"}))
+    (is (= (scan/extract-string-literals "(cond-> \"pa3\" x (str \" ma2\"))")
+           #{"ma2" "pa3"}))))

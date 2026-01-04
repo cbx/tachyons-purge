@@ -34,3 +34,21 @@
          (mapcat (fn [[_ classes]] (str/split classes #"\s+")))
          (remove str/blank?)
          set)))
+
+(defn extract-string-literals
+  "Extract potential CSS class names from string literals.
+   Finds all quoted strings and extracts whitespace-separated tokens
+   that look like CSS class names (alphanumeric with hyphens)."
+  [content]
+  (let [;; Match quoted strings
+        string-pattern #"\"([^\"]*)\""
+        matches (re-seq string-pattern content)
+        ;; CSS class pattern - alphanumeric with hyphens, typical for Tachyons
+        class-pattern #"^[a-z][a-z0-9-]*$"]
+    (->> matches
+         (mapcat (fn [[_ string-content]]
+                   (str/split string-content #"\s+")))
+         (map str/trim)
+         (remove str/blank?)
+         (filter #(re-matches class-pattern %))
+         set)))
