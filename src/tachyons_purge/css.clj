@@ -38,3 +38,19 @@
                               (parse-rules-with-media content media))
                             media-blocks)]
     (vec (concat non-media-rules media-rules))))
+
+(defn filter-css
+  "Filter CSS content to only include rules for used classes"
+  [css-content used-classes]
+  (let [blocks (parse-css-blocks css-content)
+        filtered (filter #(contains? used-classes (:class %)) blocks)
+        grouped (group-by :media filtered)]
+    (str/join "\n"
+      (concat
+        ;; Non-media rules first
+        (map :rule (get grouped nil))
+        ;; Then media rules grouped (note: :media already includes "@media ")
+        (for [[media rules] (dissoc grouped nil)]
+          (str media " {\n"
+               (str/join "\n" (map #(str "  " (:rule %)) rules))
+               "\n}"))))))
