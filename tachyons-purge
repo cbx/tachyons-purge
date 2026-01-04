@@ -1,0 +1,4 @@
+#!/usr/bin/env bb
+
+(require '[tachyons-purge.core :as core])
+(apply core/-main *command-line-args*)
