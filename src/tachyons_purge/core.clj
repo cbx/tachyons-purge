@@ -1,5 +1,6 @@
 (ns tachyons-purge.core
-  (:require [clojure.tools.cli :refer [parse-opts]]))
+  (:require [clojure.java.io :as io]
+            [clojure.tools.cli :refer [parse-opts]]))
 
 (def cli-options
   [["-c" "--css PATH" "Path to tachyons.css (default: bundled)"]
@@ -9,6 +10,13 @@
     :default "clj,cljs,cljc,html"]
    ["-v" "--verbose" "Show detailed stats"]
    ["-h" "--help" "Show help"]])
+
+(defn get-css-content
+  "Get CSS content from path or bundled resource"
+  [css-path]
+  (if css-path
+    (slurp css-path)
+    (slurp (io/resource "tachyons.min.css"))))
 
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
