@@ -11,3 +11,16 @@
        (filter (fn [path]
                  (some #(str/ends-with? path (str "." %)) extensions)))
        vec))
+
+(defn extract-keyword-classes
+  "Extract CSS classes from Hiccup keyword dot notation.
+   E.g., :div.pa3.bg-blue extracts #{\"pa3\" \"bg-blue\"}"
+  [content]
+  (let [;; Match keywords like :div.class1.class2 or :span.flex.items-center
+        keyword-pattern #":[\w-]+\.([\w.-]+)"
+        matches (re-seq keyword-pattern content)]
+    (->> matches
+         (mapcat (fn [[_ classes-str]]
+                   (str/split classes-str #"\.")))
+         (remove str/blank?)
+         set)))

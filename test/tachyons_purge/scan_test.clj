@@ -16,3 +16,12 @@
         (is (= (count found) 2))
         (is (every? #(or (.endsWith % ".clj") (.endsWith % ".html")) found)))
       (fs/delete-tree tmp))))
+
+(deftest extract-keyword-classes-test
+  (testing "extracts classes from keyword dot notation"
+    (is (= (scan/extract-keyword-classes "[:div.pa3.bg-blue \"hello\"]")
+           #{"pa3" "bg-blue"}))
+    (is (= (scan/extract-keyword-classes "[:nav.flex.items-center.justify-between]")
+           #{"flex" "items-center" "justify-between"}))
+    (is (= (scan/extract-keyword-classes "[:div {:class \"pa3\"}]")
+           #{}))))
