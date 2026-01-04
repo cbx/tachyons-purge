@@ -42,3 +42,12 @@
            #{"pa3" "bg-blue"}))
     (is (= (scan/extract-string-literals "(cond-> \"pa3\" x (str \" ma2\"))")
            #{"ma2" "pa3"}))))
+
+(deftest extract-classes-test
+  (testing "combines all extraction methods"
+    (let [content "[:div.pa3.flex {:class \"items-center bg-blue\"}
+                    (when active? \"bg-green\")]"]
+      ;; Note: active? won't be extracted by extract-string-literals because
+      ;; it contains '?' which doesn't match the CSS class pattern
+      (is (= (scan/extract-classes content)
+             #{"pa3" "flex" "items-center" "bg-blue" "bg-green"})))))

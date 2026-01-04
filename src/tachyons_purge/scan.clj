@@ -1,5 +1,6 @@
 (ns tachyons-purge.scan
   (:require [babashka.fs :as fs]
+            [clojure.set]
             [clojure.string :as str]))
 
 (defn find-files
@@ -52,3 +53,11 @@
          (remove str/blank?)
          (filter #(re-matches class-pattern %))
          set)))
+
+(defn extract-classes
+  "Extract all potential class names from content using all methods"
+  [content]
+  (clojure.set/union
+    (extract-keyword-classes content)
+    (extract-class-attrs content)
+    (extract-string-literals content)))
