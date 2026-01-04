@@ -24,3 +24,13 @@
                    (str/split classes-str #"\.")))
          (remove str/blank?)
          set)))
+
+(defn extract-class-attrs
+  "Extract classes from :class or class= attributes"
+  [content]
+  (let [pattern #"(?::class|class=)\s*\"([^\"]+)\""
+        matches (re-seq pattern content)]
+    (->> matches
+         (mapcat (fn [[_ classes]] (str/split classes #"\s+")))
+         (remove str/blank?)
+         set)))

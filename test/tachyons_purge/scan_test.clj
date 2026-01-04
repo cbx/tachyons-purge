@@ -25,3 +25,13 @@
            #{"flex" "items-center" "justify-between"}))
     (is (= (scan/extract-keyword-classes "[:div {:class \"pa3\"}]")
            #{}))))
+
+(deftest extract-class-attrs-test
+  (testing "extracts classes from :class attributes"
+    (is (= (scan/extract-class-attrs "[:div {:class \"flex items-center\"}]")
+           #{"flex" "items-center"}))
+    (is (= (scan/extract-class-attrs "[:div {:class \"pa3\"} \"text\"]")
+           #{"pa3"})))
+  (testing "extracts classes from HTML class attributes"
+    (is (= (scan/extract-class-attrs "<div class=\"bg-blue white\">")
+           #{"bg-blue" "white"}))))
