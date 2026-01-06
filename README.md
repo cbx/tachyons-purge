@@ -10,10 +10,26 @@ Including the full Tachyons CSS (~72KB) when only a fraction of classes are used
 
 Scan Hiccup and HTML files, extract used classes, output purged CSS.
 
+## Installation
+
+Via [bbin](https://github.com/babashka/bbin):
+
+```bash
+bbin install io.github.cbx/tachyons-purge
+```
+
+Or clone and run directly:
+
+```bash
+git clone https://github.com/cbx/tachyons-purge.git
+cd tachyons-purge
+./tachyons-purge --help
+```
+
 ## Usage
 
 ```bash
-./tachyons-purge [options] <directory>
+tachyons-purge [options] <directory>
 
 Options:
   -c, --css PATH        Path to tachyons.css (default: bundled v4.12.0)
@@ -28,16 +44,16 @@ Options:
 
 ```bash
 # Basic - scan src/, print purged CSS to stdout
-./tachyons-purge src/
+tachyons-purge src/
 
 # Production - minified to file
-./tachyons-purge --minify --out public/css/tachyons.min.css src/
+tachyons-purge --minify --out public/css/tachyons.min.css src/
 
 # Custom CSS source
-./tachyons-purge --css assets/my-tachyons.css src/
+tachyons-purge --css assets/my-tachyons.css src/
 
 # Verbose stats
-./tachyons-purge -v src/
+tachyons-purge -v src/
 # => Scanned 47 files
 # => Found 83 unique Tachyons classes
 # => Original: 72.2KB -> Purged: 2.8KB (96% reduction)
