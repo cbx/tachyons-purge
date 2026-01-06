@@ -47,13 +47,13 @@
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (cond
       (:help options)
-      (println "tachyons-purge [options] <directory>\n\nOptions:\n" summary)
+      (println (str "tachyons-purge [options] <directory>\n\nOptions:\n" summary))
 
       errors
       (do (doseq [e errors] (println e)) (System/exit 1))
 
       (empty? arguments)
-      (do (println "Error: directory required") (System/exit 1))
+      (println (str "tachyons-purge [options] <directory>\n\nOptions:\n" summary))
 
       :else
       (let [dir (first arguments)]
