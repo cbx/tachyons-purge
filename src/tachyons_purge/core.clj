@@ -47,13 +47,13 @@
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (cond
       (:help options)
-      (println (str "tachyons-purge [options] <directory>\n\nOptions:\n" summary))
+      (println (str "Scan source files and output purged Tachyons CSS containing only used classes.\n\nUsage: tachyons-purge [options] <directory>\n\nOptions:\n" summary))
 
       errors
       (do (doseq [e errors] (println e)) (System/exit 1))
 
       (empty? arguments)
-      (println (str "tachyons-purge [options] <directory>\n\nOptions:\n" summary))
+      (println (str "Scan source files and output purged Tachyons CSS containing only used classes.\n\nUsage: tachyons-purge [options] <directory>\n\nOptions:\n" summary))
 
       :else
       (let [dir (first arguments)]
